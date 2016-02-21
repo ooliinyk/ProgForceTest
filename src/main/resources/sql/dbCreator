@@ -1,0 +1,62 @@
+CREATE SCHEMA `shop_test` ;
+
+CREATE TABLE `shop_test`.`shops` (
+  `shop_id` INT NOT NULL AUTO_INCREMENT,
+  `shop_name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`shop_id`),
+  UNIQUE INDEX `shop_id_UNIQUE` (`shop_id` ASC));
+
+CREATE TABLE `shop_test`.`categories` (
+  `category_id` INT NOT NULL AUTO_INCREMENT,
+  `catetegory_name` VARCHAR(45) NOT NULL,
+  `shop_id` INT NOT NULL,
+  PRIMARY KEY (`category_id`),
+  UNIQUE INDEX `idcategories_UNIQUE` (`category_id` ASC),
+  INDEX `shop_id_idx` (`shop_id` ASC),
+  CONSTRAINT `shop_id`
+    FOREIGN KEY (`shop_id`)
+    REFERENCES `shop_test`.`shops` (`shop_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+CREATE TABLE `shop_test`.`status` (
+  `status_id` INT NOT NULL AUTO_INCREMENT,
+  `status_name` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`status_id`),
+  UNIQUE INDEX `status_id_UNIQUE` (`status_id` ASC));
+
+CREATE TABLE `shop_test`.`products` (
+  `product_id` INT NOT NULL AUTO_INCREMENT,
+  `title` VARCHAR(45) NOT NULL,
+  `price` double NOT NULL,
+  `status_id` INT NOT NULL,
+  `category_id` INT NOT NULL,
+  PRIMARY KEY (`product_id`),
+  UNIQUE INDEX `product_id_UNIQUE` (`product_id` ASC),
+  INDEX `status_id_idx` (`status_id` ASC),
+  INDEX `category_id_idx` (`category_id` ASC),
+  CONSTRAINT `category_id`
+    FOREIGN KEY (`category_id`)
+    REFERENCES `shop_test`.`categories` (`category_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `status_id`
+    FOREIGN KEY (`status_id`)
+    REFERENCES `shop_test`.`status` (`status_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+INSERT INTO `shop_test`.`shops` (`shop_name`) VALUES ('Amazon');
+INSERT INTO `shop_test`.`shops` (`shop_name`) VALUES ('Walmart');
+
+INSERT INTO `shop_test`.`categories` (`catetegory_name`, `shop_id`) VALUES ('audio', '1');
+INSERT INTO `shop_test`.`categories` (`catetegory_name`, `shop_id`) VALUES ('video', '1');
+INSERT INTO `shop_test`.`categories` (`catetegory_name`, `shop_id`) VALUES ('electronics', '1');
+INSERT INTO `shop_test`.`categories` (`catetegory_name`, `shop_id`) VALUES ('books', '2');
+INSERT INTO `shop_test`.`categories` (`catetegory_name`, `shop_id`) VALUES ('video', '2');
+INSERT INTO `shop_test`.`categories` (`catetegory_name`, `shop_id`) VALUES ('computers', '2');
+
+INSERT INTO `shop_test`.`status` (`status_name`) VALUES ('Available');
+INSERT INTO `shop_test`.`status` (`status_name`) VALUES ('Absent');
+INSERT INTO `shop_test`.`status` (`status_name`) VALUES ('Expected');
+
