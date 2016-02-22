@@ -16,9 +16,8 @@ import java.util.concurrent.TimeUnit;
  * Factory method to open 2 streams
  */
 public class FactoryMethodClassic {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-
 
 
         AmazonFactory amazonFactory = new AmazonFactory();
@@ -33,7 +32,9 @@ public class FactoryMethodClassic {
 
         Thread myThreadAmazom = new Thread(new Runnable() {
             public void run() {
-                long TIMER=10000;
+
+
+                final long TIMER = 10000;
                 try {
                     Thread.sleep(TIMER);
                 } catch (InterruptedException e) {
@@ -42,41 +43,41 @@ public class FactoryMethodClassic {
                 final int SHOP_AMAZON_ID = 1;
                 final int CATEGORY_TO_UPDATE_AMAZON = 1;
 
-                Shop walmart = shops.get(0);
+                Shop amazon = shops.get(0);
                 Random random = new Random();
 
-                List<Integer> categoriesIds = walmart.getCategoryIds(SHOP_AMAZON_ID);
+                List<Integer> categoriesIds = amazon.getCategoryIds(SHOP_AMAZON_ID);
 
                 /* add 4 random products to each  category from the shop 1*/
                 for (Integer iterator : categoriesIds) {
                     for (int j = 1; j < 5; j++) {
-                        walmart.addProduct(new Product("title" + j, random.nextInt(1000), (random.nextInt(3) + 1), iterator));
+                        amazon.addProduct(new Product("title" + j, random.nextInt(1000), (random.nextInt(3) + 1), iterator));
                     }
                 }
 
-                List<Product> walmartProducts = walmart.getAllProductsFromShop(SHOP_AMAZON_ID);
+                List<Product> amazonProducts = amazon.getAllProductsFromShop(SHOP_AMAZON_ID);
 
 
                 /* set status ABSENT to Category CATEGORY_TO_UPDATE_AMAZON */
 
-                for (Product product : walmartProducts) {
+                for (Product product : amazonProducts) {
                     if (product.getCategoryId() == CATEGORY_TO_UPDATE_AMAZON) {
-                        walmart.updateStatus(product.getProductID(), product.convertToStatusId(Status.Absent));
+                        amazon.updateStatus(product.getProductID(), product.convertToStatusId(Status.Absent));
                     }
                 }
 
                   /*set status Expected to first half of the list*/
-                for (Product product : walmartProducts.subList(0, (walmartProducts.size() / 2))) {
+                for (Product product : amazonProducts.subList(0, (amazonProducts.size() / 2))) {
                     if (product.getCategoryId() != CATEGORY_TO_UPDATE_AMAZON) {
-                        walmart.updateStatus(product.getProductID(), product.convertToStatusId(Status.Expected));
+                        amazon.updateStatus(product.getProductID(), product.convertToStatusId(Status.Expected));
                     }
                 }
 
                 /*Update price of products where status=Available*/
-
-                for (Product product : walmartProducts) {
+                List<Product> amazonProductsUpdated = amazon.getAllProductsFromShop(SHOP_AMAZON_ID);
+                for (Product product : amazonProductsUpdated) {
                     if (product.getStatusId() == product.convertToStatusId(Status.Available)) {
-                        walmart.updatePrice(product.getProductID(), (product.getPrice() * 0.2));
+                        amazon.updatePrice(product.getProductID(), (product.getPrice() * 0.2));
                     }
                 }
                 System.out.println("first thread is finished");
@@ -110,6 +111,7 @@ public class FactoryMethodClassic {
 
                 for (Product product : walmartProducts) {
                     if (product.getCategoryId() == CATEGORY_TO_UPDATE_WALMART) {
+
                         walmart.updateStatus(product.getProductID(), product.convertToStatusId(Status.Absent));
                     }
                 }
@@ -123,8 +125,8 @@ public class FactoryMethodClassic {
                 }
 
                 /*Update price of products where status=Available*/
-
-                for (Product product : walmartProducts) {
+                List<Product> walmartProductsUpdated = walmart.getAllProductsFromShop(SHOP_WALMART_ID);
+                for (Product product : walmartProductsUpdated) {
                     if (product.getStatusId() == product.convertToStatusId(Status.Available)) {
                         walmart.updatePrice(product.getProductID(), (product.getPrice() * 0.2));
                     }
@@ -132,7 +134,7 @@ public class FactoryMethodClassic {
                 System.out.println("Second thread is finished");
             }
         });
-        ScheduledFuture<?>  future = executor.schedule(myThreadWalmart, 10, TimeUnit.SECONDS);
+       
         myThreadAmazom.start();
         myThreadWalmart.start();
 
